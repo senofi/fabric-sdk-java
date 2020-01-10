@@ -822,6 +822,24 @@ public class NetworkConfig {
             if (pemBytes != null) {
                 props.put("pemBytes", pemBytes.getBytes());
             }
+
+            JsonObject jsonTlsClientCerts = getJsonObject(jsonTlsCaCerts, "client");
+
+            if (jsonTlsClientCerts != null) {
+
+                String keyfile = getJsonValueAsString(jsonTlsClientCerts.get("keyfile"));
+                String certfile = getJsonValueAsString(jsonTlsClientCerts.get("certfile"));
+
+                if (keyfile != null) {
+                    props.put("tlsClientKeyFile", keyfile);
+                }
+
+                if (certfile != null) {
+                    props.put("tlsClientCertFile", certfile);
+                }
+
+            }
+
         }
     }
 

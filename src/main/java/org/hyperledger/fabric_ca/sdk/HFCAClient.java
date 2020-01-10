@@ -14,6 +14,9 @@
 
 package org.hyperledger.fabric_ca.sdk;
 
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,6 +39,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -61,7 +65,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.DatatypeConverter;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
@@ -93,10 +96,11 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.apache.milagro.amcl.FP256BN.BIG;
 import org.apache.milagro.amcl.RAND;
+import org.apache.milagro.amcl.FP256BN.BIG;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
@@ -127,8 +131,7 @@ import org.hyperledger.fabric_ca.sdk.exception.RevocationException;
 import org.hyperledger.fabric_ca.sdk.helper.Config;
 import org.hyperledger.fabric_ca.sdk.helper.Util;
 
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * HFCAClient Hyperledger Fabric Certificate Authority Client.
@@ -1614,10 +1617,26 @@ public class HFCAClient {
                         }
                     }
                 }
+                String tlsClientKeyFile = properties.getProperty("tlsClientKeyFile");
+                String tlsClientCertFile = properties.getProperty("tlsClientCertFile");
+                SSLContextBuilder sslContextBuilder = SSLContexts.custom()
+                        .loadTrustMaterial(cryptoPrimitives.getTrustStore(), null);
+                if (tlsClientCertFile != null && tlsClientKeyFile != null) {
+                    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                    keyStore.load(null, null);
+                    byte[] tlsClientKeyAsBytes = Files.readAllBytes(Paths.get(tlsClientKeyFile));
+                    Certificate tlsCleintCertificate = new CryptoPrimitives().bytesToCertificate(Files.readAllBytes(Paths.get(tlsClientCertFile)));
+                    String alias;
+                    if (tlsCleintCertificate instanceof X509Certificate) {
+                        alias = ((X509Certificate) tlsCleintCertificate).getSerialNumber().toString();
+                    } else { // not likely ...
+                        alias = Integer.toString(tlsCleintCertificate.hashCode());
+                    }
+                    keyStore.setKeyEntry(alias, new CryptoPrimitives().bytesToPrivateKey(tlsClientKeyAsBytes),null, new Certificate[] {tlsCleintCertificate});
+                    sslContextBuilder.loadKeyMaterial(keyStore, null);
+                }
 
-                SSLContext sslContext = SSLContexts.custom()
-                        .loadTrustMaterial(cryptoPrimitives.getTrustStore(), null)
-                        .build();
+                SSLContext sslContext = sslContextBuilder.build();
 
                 ConnectionSocketFactory sf;
                 if (null != properties &&
