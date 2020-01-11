@@ -4,7 +4,7 @@
     <groupId>org.hyperledger.fabric-sdk-java</groupId>
     <artifactId>fabric-sdk-java</artifactId>
     <packaging>jar</packaging>
-    <version>1.4.7.senofi</version>
+    <version>1.4.7.senofi-SNAPSHOT</version>
     <name>fabric-java-sdk</name>
     <description>Java SDK for Hyperledger fabric project</description>
     <url>https://www.hyperledger.org/community/projects</url>
@@ -250,6 +250,11 @@
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
                 <version>1.4.1.Final</version>
+            </extension>
+            <extension>
+                <groupId>com.gkatzioura.maven.cloud</groupId>
+                <artifactId>s3-storage-wagon</artifactId>
+                <version>2.3</version>
             </extension>
         </extensions>
         <plugins>
@@ -551,8 +556,8 @@
     </build>
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>s3.snapshot</id>
+            <url>s3://senofi-maven-repo</url>
         </snapshotRepository>
     </distributionManagement>
     <profiles>
