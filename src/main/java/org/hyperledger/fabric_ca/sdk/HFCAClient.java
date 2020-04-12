@@ -1617,21 +1617,30 @@ public class HFCAClient {
                         }
                     }
                 }
-                String tlsClientKeyFile = properties.getProperty("tlsClientKeyFile");
-                String tlsClientCertFile = properties.getProperty("tlsClientCertFile");
                 SSLContextBuilder sslContextBuilder = SSLContexts.custom()
                         .loadTrustMaterial(cryptoPrimitives.getTrustStore(), null);
+                
+                String tlsClientKeyFile = properties.getProperty("tlsClientKeyFile");
+                String tlsClientCertFile = properties.getProperty("tlsClientCertFile");
+                
+                byte[] tlsClientKeyAsBytes = (byte[]) properties.get("tlsClientKeyBytes");
+                byte[] tlsClientCertAsBytes = (byte[]) properties.get("tlsClientCertBytes");
+                
                 if (tlsClientCertFile != null && tlsClientKeyFile != null) {
-                    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                    keyStore.load(null, null);
-                    byte[] tlsClientKeyAsBytes = Files.readAllBytes(Paths.get(tlsClientKeyFile));
-                    Certificate tlsCleintCertificate = new CryptoPrimitives().bytesToCertificate(Files.readAllBytes(Paths.get(tlsClientCertFile)));
+                    tlsClientKeyAsBytes = Files.readAllBytes(Paths.get(tlsClientKeyFile));
+                    tlsClientCertAsBytes = Files.readAllBytes(Paths.get(tlsClientCertFile));
+                }
+                
+                if (tlsClientKeyAsBytes != null && tlsClientCertAsBytes != null) {
+                    Certificate tlsCleintCertificate = new CryptoPrimitives().bytesToCertificate(tlsClientCertAsBytes);
                     String alias;
                     if (tlsCleintCertificate instanceof X509Certificate) {
                         alias = ((X509Certificate) tlsCleintCertificate).getSerialNumber().toString();
                     } else { // not likely ...
                         alias = Integer.toString(tlsCleintCertificate.hashCode());
                     }
+                    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                    keyStore.load(null, null);
                     keyStore.setKeyEntry(alias, new CryptoPrimitives().bytesToPrivateKey(tlsClientKeyAsBytes),null, new Certificate[] {tlsCleintCertificate});
                     sslContextBuilder.loadKeyMaterial(keyStore, null);
                 }
