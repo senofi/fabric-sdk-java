@@ -838,8 +838,8 @@ public class NetworkConfig {
                     props.put("tlsClientCertFile", certfile);
                 }
 
-                String keyBytes = getJsonValueAsString(jsonTlsCaCerts.get("keyPem"));
-                String certBytes = getJsonValueAsString(jsonTlsCaCerts.get("certPem"));
+                String keyBytes = getJsonValueAsString(jsonTlsClientCerts.get("keyPem"));
+                String certBytes = getJsonValueAsString(jsonTlsClientCerts.get("certPem"));
                 
                 if (keyBytes != null) {
                     props.put("tlsClientKeyBytes", keyBytes);
