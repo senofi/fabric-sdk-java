@@ -842,11 +842,11 @@ public class NetworkConfig {
                 String certBytes = getJsonValueAsString(jsonTlsClientCerts.get("certPem"));
                 
                 if (keyBytes != null) {
-                    props.put("tlsClientKeyBytes", keyBytes);
+                    props.put("tlsClientKeyBytes", keyBytes.getBytes());
                 }
 
                 if (certBytes != null) {
-                    props.put("tlsClientCertBytes", certBytes);
+                    props.put("tlsClientCertBytes", certBytes.getBytes());
                 }
 
             }
