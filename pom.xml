@@ -4,7 +4,7 @@
     <groupId>org.hyperledger.fabric-sdk-java</groupId>
     <artifactId>fabric-sdk-java</artifactId>
     <packaging>jar</packaging>
-    <version>1.4.11</version>
+    <version>1.4.11.senofi-SNAPSHOT</version>
     <name>fabric-java-sdk</name>
     <description>Java SDK for Hyperledger fabric project</description>
     <url>https://www.hyperledger.org/community/projects</url>
@@ -255,6 +255,11 @@
                 <artifactId>os-maven-plugin</artifactId>
                 <version>1.4.1.Final</version>
             </extension>
+            <extension>
+                <groupId>com.gkatzioura.maven.cloud</groupId>
+                <artifactId>s3-storage-wagon</artifactId>
+                <version>2.3</version>
+            </extension>
         </extensions>
         <plugins>
             <plugin>
@@ -346,7 +351,7 @@
                     </links>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.17</version>
@@ -366,7 +371,7 @@
                     <configLocation>checkstyle-config.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -555,8 +560,8 @@
     </build>
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>s3.snapshot</id>
+            <url>s3://senofi-maven-repo</url>
         </snapshotRepository>
     </distributionManagement>
     <profiles>
